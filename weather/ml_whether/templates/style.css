@@ -1,0 +1,425 @@
+:root {
+    --primary: #4361ee;
+    --secondary: #3f37c9;
+    --weather-blue: #1e88e5;
+    --weather-orange: #ff9800;
+    --weather-green: #4caf50;
+    --light: #f8f9fa;
+    --dark: #212529;
+}
+
+body {
+    background: linear-gradient(135deg, #f5f7fb 0%, #e3eeff 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+}
+
+.dashboard-header {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 1.5rem 0;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.card {
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: none;
+    margin-bottom: 1.8rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+    background: rgba(255, 255, 255, 0.95);
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 25px rgba(0,0,0,0.12);
+}
+
+.card-header {
+    background: linear-gradient(to right, var(--weather-blue), #1976d2);
+    color: white;
+    border-bottom: none;
+    font-weight: 600;
+    padding: 1.2rem 1.8rem;
+    border-radius: 0 !important;
+    font-size: 1.1rem;
+}
+
+.stat-card {
+    text-align: center;
+    padding: 1.8rem 1.2rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+}
+
+.stat-value {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background: linear-gradient(to right, var(--primary), var(--secondary));
+    border: none;
+    transition: all 0.3s;
+    padding: 0.7rem 1.5rem;
+    font-weight: 500;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(67, 97, 238, 0.35);
+}
+
+.btn-weather {
+    background: linear-gradient(to right, var(--weather-blue), #1565c0);
+    border: none;
+}
+
+.chart-container {
+    position: relative;
+    height: 380px;
+    padding: 1.2rem;
+}
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    border-radius: 10px;
+}
+
+.spinner {
+    width: 3.5rem;
+    height: 3.5rem;
+}
+
+.weather-icon {
+    font-size: 2.2rem;
+    margin-right: 0.5rem;
+    color: var(--weather-orange);
+}
+
+.temp-high { 
+    color: var(--weather-orange);
+    font-weight: 600;
+}
+
+.temp-low { 
+    color: var(--weather-blue);
+    font-weight: 600;
+}
+
+.forecast-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    padding: 1.2rem;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    transition: all 0.3s;
+}
+
+.forecast-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 5px 18px rgba(0,0,0,0.1);
+}
+
+.current-weather {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.current-temp {
+    font-size: 3.2rem;
+    font-weight: 700;
+    color: var(--weather-blue);
+    line-height: 1;
+}
+
+.city-name {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 8px;
+}
+
+.last-updated {
+    font-size: 0.9rem;
+    color: #777;
+}
+
+.comparison-row {
+    display: flex;
+    align-items: center;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.variance-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.variance-good {
+    background-color: rgba(76, 175, 80, 0.15);
+    color: #2e7d32;
+}
+
+.variance-medium {
+    background-color: rgba(255, 193, 7, 0.15);
+    color: #c79100;
+}
+
+.variance-high {
+    background-color: rgba(244, 67, 54, 0.15);
+    color: #d32f2f;
+}
+
+.manual-input-card {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.api-data-card {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.comparison-summary {
+    background: linear-gradient(to right, #4361ee, #3f37c9);
+    color: white;
+    border-radius: 12px;
+    padding: 1.8rem;
+    box-shadow: 0 4px 20px rgba(67, 97, 238, 0.3);
+}
+
+.accuracy-badge {
+    font-size: 1.1rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 30px;
+    font-weight: 600;
+}
+
+.alert-panel {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-weight: 500;
+    border-left: 4px solid;
+}
+
+.alert-high {
+    background-color: rgba(255, 87, 87, 0.15);
+    border-left-color: #ff5757;
+}
+
+.alert-medium {
+    background-color: rgba(255, 193, 7, 0.15);
+    border-left-color: #ffc107;
+}
+
+.alert-low {
+    background-color: rgba(76, 175, 80, 0.15);
+    border-left-color: #4caf50;
+}
+
+.file-upload-box {
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    background-color: #f8f9fa;
+    transition: all 0.3s;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.file-upload-box:hover {
+    border-color: var(--primary);
+    background-color: rgba(67, 97, 238, 0.05);
+}
+
+.file-upload-box.drag-over {
+    border-color: var(--primary);
+    background-color: rgba(67, 97, 238, 0.1);
+}
+
+.insight-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+.badge-high {
+    background-color: #ff5757;
+    color: white;
+}
+
+.badge-medium {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.badge-low {
+    background-color: #4caf50;
+    color: white;
+}
+
+.weather-icon-large {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.weather-condition {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+}
+
+.api-info {
+    background-color: rgba(67, 97, 238, 0.1);
+    border-left: 4px solid var(--primary);
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin-top: 15px;
+    font-size: 0.9rem;
+}
+
+.api-status {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.status-connected {
+    background-color: #4caf50;
+}
+
+.status-disconnected {
+    background-color: #f44336;
+}
+
+#searchResults {
+    position: absolute;
+    width: calc(100% - 30px);
+    background: white;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+}
+
+.search-result-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.search-result-item:hover {
+    background-color: #f5f7fb;
+}
+
+.search-container {
+    position: relative;
+}
+
+.csv-preview {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 10px;
+    background: white;
+}
+
+.csv-preview table {
+    width: 100%;
+    font-size: 0.85rem;
+}
+
+.csv-preview th {
+    background-color: #f1f3f9;
+    position: sticky;
+    top: 0;
+}
+
+.csv-success {
+    background-color: rgba(76, 175, 80, 0.15);
+    border-left: 4px solid #4caf50;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.csv-error {
+    background-color: rgba(244, 67, 54, 0.15);
+    border-left: 4px solid #f44336;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.upload-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.csv-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-csv {
+    flex: 1;
+}
+
+.csv-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}

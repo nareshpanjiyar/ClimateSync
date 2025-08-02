@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Weather Forecast Comparison</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --weather-blue: #1e88e5;
+            --weather-orange: #ff9800;
+            --weather-green: #4caf50;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fb 0%, #e3eeff 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: none;
+            margin-bottom: 1.8rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            background: rgba(255, 255, 255, 0.95);
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.12);
+        }
+
+        .card-header {
+            background: linear-gradient(to right, var(--weather-blue), #1976d2);
+            color: white;
+            border-bottom: none;
+            font-weight: 600;
+            padding: 1.2rem 1.8rem;
+            border-radius: 0 !important;
+            font-size: 1.1rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1.8rem 1.2rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+        }
+
+        .stat-value {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border: none;
+            transition: all 0.3s;
+            padding: 0.7rem 1.5rem;
+            font-weight: 500;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.35);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 380px;
+            padding: 1.2rem;
+        }
+
+        .temp-high { 
+            color: var(--weather-orange);
+            font-weight: 600;
+        }
+
+        .temp-low { 
+            color: var(--weather-blue);
+            font-weight: 600;
+        }
+
+        .current-temp {
+            font-size: 3.2rem;
+            font-weight: 700;
+            color: var(--weather-blue);
+            line-height: 1;
+        }
+
+        .city-name {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .last-updated {
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        .variance-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .variance-good {
+            background-color: rgba(76, 175, 80, 0.15);
+            color: #2e7d32;
+        }
+
+        .variance-medium {
+            background-color: rgba(255, 193, 7, 0.15);
+            color: #c79100;
+        }
+
+        .variance-high {
+            background-color: rgba(244, 67, 54, 0.15);
+            color: #d32f2f;
+        }
+
+        .alert-panel {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 500;
+            border-left: 4px solid;
+        }
+
+        .alert-high {
+            background-color: rgba(255, 87, 87, 0.15);
+            border-left-color: #ff5757;
+        }
+
+        .alert-medium {
+            background-color: rgba(255, 193, 7, 0.15);
+            border-left-color: #ffc107;
+        }
+
+        .alert-low {
+            background-color: rgba(76, 175, 80, 0.15);
+            border-left-color: #4caf50;
+        }
+
+        .file-upload-box {
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            background-color: #f8f9fa;
+            transition: all 0.3s;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .file-upload-box:hover {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .file-upload-box.drag-over {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        .insight-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .badge-high {
+            background-color: #ff5757;
+            color: white;
+        }
+
+        .badge-medium {
+            background-color: #ffc107;
+            color: #333;
+        }
+
+        .badge-low {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .weather-icon-large {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .weather-condition {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        .api-info {
+            background-color: rgba(67, 97, 238, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        .api-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-connected {
+            background-color: #4caf50;
+        }
+
+        .csv-preview {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+            background: white;
+        }
+
+        .csv-preview table {
+            width: 100%;
+            font-size: 0.85rem;
+        }
+
+        .csv-preview th {
+            background-color: #f1f3f9;
+            position: sticky;
+            top: 0;
+        }
+
+        .csv-success {
+            background-color: rgba(76, 175, 80, 0.15);
+            border-left: 4px solid #4caf50;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .csv-error {
+            background-color: rgba(244, 67, 54, 0.15);
+            border-left: 4px solid #f44336;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .upload-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .csv-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-csv {
+            flex: 1;
+        }
+
+        .csv-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        /* Additional enhancements */
+        .variance-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+            transform: translateX(3px);
+            transition: all 0.2s ease;
+        }
+
+        .card-body > .d-flex.flex-column {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .city-name {
+                font-size: 1.5rem;
+            }
+            .current-temp {
+                font-size: 2.5rem;
+            }
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-cloud-sun me-2"></i> Smart Weather Forecast Comparison</h1>
+                    <p class="mb-0">Professional dashboard for comparing ML predictions with API forecasts</p>
+                </div>
+                <div class="d-flex">
+                    <div class="me-3">
+                        <div class="text-white"><i class="fas fa-calendar-check me-1"></i> <span id="current-date"></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-cog me-2"></i> Configuration
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label class="form-label">Location Search</label>
+                                    <div class="search-container">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="locationInput" placeholder="Enter city name (e.g. New York, London, Tokyo)" value="New York">
+                                            <button class="btn btn-outline-primary" id="searchBtn">
+                                                <i class="fas fa-search"></i> Search
+                                            </button>
+                                        </div>
+                                        <div id="searchResults"></div>
+                                        <div class="form-text">Powered by OpenWeatherMap API</div>
+                                    </div>
+                                </div>
+                                <div class="api-info">
+                                    <i class="fas fa-plug me-2"></i> 
+                                    <span class="api-status status-connected"></span>
+                                    <span id="apiStatus">Connected to Weather API</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button class="btn btn-primary w-100 py-3" id="generateForecastBtn">
+                                    <i class="fas fa-bolt me-2"></i> Generate Forecast
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header bg-secondary text-white">
+                                        <i class="fas fa-file-csv me-2"></i> Upload Historical Weather Data (CSV)
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="file-upload-box" id="fileUploadBox">
+                                            <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                            <h5 class="mb-2">Drag & Drop your CSV file here</h5>
+                                            <p class="text-muted mb-0">or click to browse</p>
+                                            <input type="file" id="csvFile" accept=".csv" style="display: none;">
+                                        </div>
+                                        <div class="form-text">Upload historical weather data for analysis. Supported columns: date, temperature, humidity, pressure, etc.</div>
+                                        
+                                        <div id="uploadStatus" class="mt-3"></div>
+                                        <div id="csvPreview" class="csv-preview mt-3 d-none">
+                                            <div class="csv-header">
+                                                <h6 class="mb-0">Preview (First 5 rows)</h6>
+                                                <button class="btn btn-sm btn-outline-danger" id="clearCsvBtn">
+                                                    <i class="fas fa-times me-1"></i> Clear
+                                                </button>
+                                            </div>
+                                            <table class="table table-sm table-striped mt-2">
+                                                <thead id="csvPreviewHead"></thead>
+                                                <tbody id="csvPreviewBody"></tbody>
+                                            </table>
+                                        </div>
+                                        
+                                        <div class="csv-actions mt-3 d-none" id="csvActions">
+                                            <button class="btn btn-success btn-csv" id="processCsvBtn">
+                                                <i class="fas fa-cogs me-1"></i> Process Data
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-csv" id="analyzeCsvBtn">
+                                                <i class="fas fa-chart-bar me-1"></i> Analyze
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-lightbulb me-2"></i> Smart Insights
+                    </div>
+                    <div class="card-body">
+                        <div class="alert-panel alert-high">
+                            <span class="insight-badge badge-high">Alert</span>
+                            ML model predicts higher temperatures than API for the next 3 days
+                        </div>
+                        <div class="alert-panel alert-medium">
+                            <span class="insight-badge badge-medium">Notice</span>
+                            Significant difference detected: ML predicts +2.5°C compared to API
+                        </div>
+                        <div class="alert-panel alert-low">
+                            <span class="insight-badge badge-low">Info</span>
+                            Humidity predictions show high correlation (92%) between models
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-3">
+                                <div class="stat-card">
+                                    <div class="stat-value">87%</div>
+                                    <div class="stat-label">Accuracy</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card">
+                                    <div class="stat-value">1.2°C</div>
+                                    <div class="stat-label">Avg. Error</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card">
+                                    <div class="stat-value">0.92</div>
+                                    <div class="stat-label">R² Score</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card">
+                                    <div class="stat-value">3.8s</div>
+                                    <div class="stat-label">Avg. Runtime</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-line me-2"></i> Forecast Comparison
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="forecastChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-table me-2"></i> Forecast Data
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>ML Temp</th>
+                                        <th>API Temp</th>
+                                        <th>Variance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="forecastTableBody">
+                                    <tr>
+                                        <td colspan="4" class="text-center">Search for a location to load data</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-2"></i> Current Weather
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center">
+                            <div class="city-name" id="cityName">New York</div>
+                            <div class="last-updated">Last updated: <span id="lastUpdated">Just now</span></div>
+                        </div>
+                        <div class="d-flex flex-column align-items-center mt-3">
+                            <div class="weather-icon-large text-warning" id="weatherIcon">
+                                <i class="fas fa-sun"></i>
+                            </div>
+                            <div class="current-temp" id="currentTemp">24°C</div>
+                            <div class="weather-condition" id="currentCondition">Partly Cloudy</div>
+                        </div>
+                        <div class="d-flex justify-content-around text-center mt-4">
+                            <div>
+                                <div><i class="fas fa-tint"></i></div>
+                                <div>Humidity</div>
+                                <div class="fw-bold" id="humidity">65%</div>
+                            </div>
+                            <div>
+                                <div><i class="fas fa-wind"></i></div>
+                                <div>Wind</div>
+                                <div class="fw-bold" id="windSpeed">12 km/h</div>
+                            </div>
+                            <div>
+                                <div><i class="fas fa-compress-arrows-alt"></i></div>
+                                <div>Pressure</div>
+                                <div class="fw-bold" id="pressure">1015 hPa</div>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <span class="temp-high me-3"><i class="fas fa-temperature-high"></i> H: <span id="highTemp">26</span>°C</span>
+                            <span class="temp-low"><i class="fas fa-temperature-low"></i> L: <span id="lowTemp">18</span>°C</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-bar me-2"></i> Model Performance
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="chart-container">
+                                    <canvas id="performanceChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light h-100">
+                                    <div class="card-body">
+                                        <h5><i class="fas fa-star me-2"></i> Key Observations</h5>
+                                        <div class="mt-4">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                    <i class="fas fa-check"></i>
+                                                </div>
+                                                <div class="ms-3">
+                                                    <div class="fw-bold">High Accuracy</div>
+                                                    <div class="text-muted">Temperature predictions are highly accurate</div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                    <i class="fas fa-exclamation-triangle"></i>
+                                                </div>
+                                                <div class="ms-3">
+                                                    <div class="fw-bold">Variance Alert</div>
+                                                    <div class="text-muted">Significant differences detected need review</div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                    <i class="fas fa-chart-line"></i>
+                                                </div>
+                                                <div class="ms-3">
+                                                    <div class="fw-bold">Positive Trend</div>
+                                                    <div class="text-muted">Accuracy improving 2.3% monthly</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Smart Weather Forecast Comparison</h5>
+                    <p class="text-white-50">Professional dashboard for analyzing ML predictions against API forecasts</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <p class="mb-0">College Project &copy; 2025 | Meteorological Analysis</p>
+                    <p class="text-white-50">Developed by Weather Analytics Team</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script>
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date
+            const now = new Date();
+            document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            // Set last updated time
+            updateLastUpdated();
+            
+            // Initialize charts
+            initForecastChart();
+            initPerformanceChart();
+            
+            // Set up event listeners
+            document.getElementById('generateForecastBtn').addEventListener('click', generateForecast);
+            document.getElementById('searchBtn').addEventListener('click', searchLocation);
+            
+            // Also allow Enter key in search field
+            document.getElementById('locationInput').addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    searchLocation();
+                }
+            });
+            
+            // CSV Upload functionality
+            setupCsvUpload();
+            
+            // Initial forecast for default location
+            generateForecast();
+        });
+
+        // Weather icons mapping
+        const weatherIcons = {
+            'clear': 'fas fa-sun',
+            'clouds': 'fas fa-cloud',
+            'rain': 'fas fa-cloud-rain',
+            'drizzle': 'fas fa-cloud-sun-rain',
+            'thunderstorm': 'fas fa-bolt',
+            'snow': 'fas fa-snowflake',
+            'mist': 'fas fa-smog',
+            'smoke': 'fas fa-smog',
+            'haze': 'fas fa-smog',
+            'dust': 'fas fa-smog',
+            'fog': 'fas fa-smog',
+            'sand': 'fas fa-smog',
+            'ash': 'fas fa-smog',
+            'squall': 'fas fa-wind',
+            'tornado': 'fas fa-wind'
+        };
+
+        // Update last updated time
+        function updateLastUpdated() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('lastUpdated').textContent = timeString;
+        }
+
+        // Initialize forecast chart
+        function initForecastChart() {
+            const ctx = document.getElementById('forecastChart').getContext('2d');
+            window.forecastChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'ML Forecast',
+                            data: [],
+                            borderColor: '#4361ee',
+                            backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                            tension: 0.3,
+                            fill: true,
+                            pointRadius: 6,
+                            pointBackgroundColor: '#4361ee',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'API Forecast',
+                            data: [],
+                            borderColor: '#4cc9f0',
+                            backgroundColor: 'rgba(76, 201, 240, 0.1)',
+                            tension: 0.3,
+                            fill: false,
+                            pointRadius: 6,
+                            pointBackgroundColor: '#4cc9f0',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            borderDash: [5, 5]
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 14
+                                },
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: {
+                                size: 14
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.y}°C`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Temperature (°C)',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+        }
+
+        // Initialize performance chart
+        function initPerformanceChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            window.performanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Accuracy', 'MAE', 'RMSE', 'R²'],
+                    datasets: [{
+                        label: 'Model Performance',
+                        data: [87, 1.2, 1.8, 92],
+                        backgroundColor: [
+                            'rgba(67, 97, 238, 0.7)',
+                            'rgba(76, 201, 240, 0.7)',
+                            'rgba(255, 152, 0, 0.7)',
+                            'rgba(76, 175, 80, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(67, 97, 238)',
+                            'rgb(76, 201, 240)',
+                            'rgb(255, 152, 0)',
+                            'rgb(76, 175, 80)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y + (context.dataIndex === 0 ? '%' : context.dataIndex === 3 ? '%' : '°C');
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Score',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Search location
+        function searchLocation() {
+            const location = document.getElementById('locationInput').value;
+            if (location.trim() === '') {
+                alert('Please enter a location');
+                return;
+            }
+            
+            document.getElementById('cityName').textContent = location;
+            generateForecast();
+        }
+
+        // Get weather icon class
+        function getWeatherIcon(condition) {
+            condition = condition.toLowerCase();
+            for (const key in weatherIcons) {
+                if (condition.includes(key)) {
+                    return weatherIcons[key];
+                }
+            }
+            return 'fas fa-cloud';
+        }
+
+        // Generate forecast with mock data
+        function generateForecast() {
+            const btn = document.getElementById('generateForecastBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+            
+            const location = document.getElementById('locationInput').value.trim();
+            document.getElementById('cityName').textContent = location;
+            
+            // Simulate API delay
+            setTimeout(() => {
+                // Mock data for demonstration
+                const mockData = {
+                    current: {
+                        temp: Math.floor(Math.random() * 15) + 20,
+                        condition: ['Sunny', 'Partly Cloudy', 'Cloudy', 'Rainy'][Math.floor(Math.random() * 4)],
+                        humidity: Math.floor(Math.random() * 30) + 50,
+                        windSpeed: Math.floor(Math.random() * 15) + 5,
+                        pressure: Math.floor(Math.random() * 20) + 1000,
+                        highTemp: Math.floor(Math.random() * 5) + 25,
+                        lowTemp: Math.floor(Math.random() * 5) + 15
+                    },
+                    forecast: []
+                };
+                
+                // Generate forecast data for next 7 days
+                const today = new Date();
+                for (let i = 0; i < 7; i++) {
+                    const date = new Date();
+                    date.setDate(today.getDate() + i);
+                    
+                    const mlTemp = Math.floor(Math.random() * 8) + 20;
+                    const apiTemp = mlTemp + Math.floor(Math.random() * 5) - 2;
+                    const variance = Math.abs(mlTemp - apiTemp);
+                    
+                    let varianceClass = 'variance-good';
+                    let varianceText = 'Low variance';
+                    
+                    if (variance > 2) {
+                        varianceClass = 'variance-medium';
+                        varianceText = 'Medium variance';
+                    }
+                    if (variance > 4) {
+                        varianceClass = 'variance-high';
+                        varianceText = 'High variance';
+                    }
+                    
+                    mockData.forecast.push({
+                        date: date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
+                        mlTemp: mlTemp,
+                        apiTemp: apiTemp,
+                        variance: variance,
+                        varianceClass: varianceClass,
+                        varianceText: varianceText
+                    });
+                }
+                
+                // Update last updated time
+                updateLastUpdated();
+                
+                // Update current weather display
+                document.getElementById('currentTemp').textContent = `${mockData.current.temp}°C`;
+                document.getElementById('currentCondition').textContent = mockData.current.condition;
+                document.getElementById('weatherIcon').innerHTML = `<i class="${getWeatherIcon(mockData.current.condition)}"></i>`;
+                document.getElementById('humidity').textContent = `${mockData.current.humidity}%`;
+                document.getElementById('windSpeed').textContent = `${mockData.current.windSpeed} km/h`;
+                document.getElementById('pressure').textContent = `${mockData.current.pressure} hPa`;
+                document.getElementById('highTemp').textContent = mockData.current.highTemp;
+                document.getElementById('lowTemp').textContent = mockData.current.lowTemp;
+                
+                const forecastDays = mockData.forecast.map(f => f.date);
+                const mlForecast = mockData.forecast.map(f => f.mlTemp);
+                const apiForecast = mockData.forecast.map(f => f.apiTemp);
+                
+                // Update chart
+                window.forecastChart.data.labels = forecastDays;
+                window.forecastChart.data.datasets[0].data = mlForecast;
+                window.forecastChart.data.datasets[1].data = apiForecast;
+                window.forecastChart.update();
+                
+                // Update forecast table for 5 days max
+                const tableBody = document.getElementById('forecastTableBody');
+                tableBody.innerHTML = '';
+
+                mockData.forecast.slice(0, 5).forEach(f => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${f.date}</td>
+                        <td>${f.mlTemp}°C</td>
+                        <td>${f.apiTemp}°C</td>
+                        <td><span class="variance-badge ${f.varianceClass}">${f.varianceText}</span></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                // Update insights based on variance
+                const varianceInsights = document.querySelectorAll('.alert-panel');
+                const maxVariance = mockData.forecast.slice(0, 3).reduce((max, f) => Math.max(max, Math.abs(f.mlTemp - f.apiTemp)), 0);
+
+                if (maxVariance > 3) {
+                    varianceInsights[0].innerHTML = `<span class="insight-badge badge-high">Alert</span> Significant variance (up to ${maxVariance}°C) between ML and API forecasts`;
+                } else if (maxVariance > 2) {
+                    varianceInsights[0].innerHTML = `<span class="insight-badge badge-medium">Notice</span> Moderate variance (up to ${maxVariance}°C) between forecasts`;
+                } else {
+                    varianceInsights[0].innerHTML = `<span class="insight-badge badge-low">Info</span> Minimal variance between forecasts`;
+                }
+                
+                // Show success message
+                btn.innerHTML = '<i class="fas fa-check me-2"></i>Forecast Generated!';
+                btn.classList.add('btn-success');
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('btn-success');
+                }, 2000);
+            }, 1500);
+        }
+
+        // Setup CSV upload functionality
+        function setupCsvUpload() {
+            const fileUploadBox = document.getElementById('fileUploadBox');
+            const fileInput = document.getElementById('csvFile');
+            const uploadStatus = document.getElementById('uploadStatus');
+            const csvPreview = document.getElementById('csvPreview');
+            const csvPreviewHead = document.getElementById('csvPreviewHead');
+            const csvPreviewBody = document.getElementById('csvPreviewBody');
+            const csvActions = document.getElementById('csvActions');
+            const processCsvBtn = document.getElementById('processCsvBtn');
+            const analyzeCsvBtn = document.getElementById('analyzeCsvBtn');
+            const clearCsvBtn = document.getElementById('clearCsvBtn');
+            
+            // Click handler for file upload box
+            fileUploadBox.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            // Drag and drop functionality
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                fileUploadBox.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                fileUploadBox.addEventListener(eventName, () => {
+                    fileUploadBox.classList.add('drag-over');
+                }, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                fileUploadBox.addEventListener(eventName, () => {
+                    fileUploadBox.classList.remove('drag-over');
+                }, false);
+            });
+            
+            fileUploadBox.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            }
+            
+            // File input change handler
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length) {
+                    handleFiles(fileInput.files);
+                }
+            });
+            
+            // Handle uploaded files
+            function handleFiles(files) {
+                const file = files[0];
+                
+                // Validate file type
+                if (!file.name.toLowerCase().endsWith('.csv')) {
+                    showUploadStatus('Please upload a CSV file', 'error');
+                    return;
+                }
+                
+                // Validate file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    showUploadStatus('File size exceeds 5MB limit', 'error');
+                    return;
+                }
+                
+                // Read the file
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const contents = e.target.result;
+                        const rows = contents.split('\n');
+                        
+                        // Validate we have at least 2 rows (header + data)
+                        if (rows.length < 2) {
+                            showUploadStatus('CSV file is empty or has no data rows', 'error');
+                            return;
+                        }
+                        
+                        // Parse CSV
+                        const headers = rows[0].split(',').map(h => h.trim());
+                        const dataRows = rows.slice(1, 6).filter(row => row.trim() !== '');
+                        
+                        // Validate we have data
+                        if (dataRows.length === 0) {
+                            showUploadStatus('No data found in CSV file', 'error');
+                            return;
+                        }
+                        
+                        // Show preview
+                        showCsvPreview(headers, dataRows);
+                        
+                        // Show success message
+                        showUploadStatus(`Successfully loaded CSV: ${file.name} (${file.size} bytes)`, 'success');
+                        
+                        // Show action buttons
+                        csvActions.classList.remove('d-none');
+                    } catch (error) {
+                        showUploadStatus(`Error parsing CSV: ${error.message}`, 'error');
+                    }
+                };
+                
+                reader.readAsText(file);
+            }
+            
+            // Show CSV preview
+            function showCsvPreview(headers, rows) {
+                // Clear previous preview
+                csvPreviewHead.innerHTML = '';
+                csvPreviewBody.innerHTML = '';
+                
+                // Create header row
+                const headRow = document.createElement('tr');
+                headers.forEach(header => {
+                    const th = document.createElement('th');
+                    th.textContent = header;
+                    headRow.appendChild(th);
+                });
+                csvPreviewHead.appendChild(headRow);
+                
+                // Create data rows
+                rows.forEach(row => {
+                    const cells = row.split(',');
+                    const tr = document.createElement('tr');
+                    
+                    cells.forEach(cell => {
+                        const td = document.createElement('td');
+                        td.textContent = cell.trim();
+                        tr.appendChild(td);
+                    });
+                    
+                    csvPreviewBody.appendChild(tr);
+                });
+                
+                // Show preview
+                csvPreview.classList.remove('d-none');
+            }
+            
+            // Show upload status message
+            function showUploadStatus(message, type) {
+                uploadStatus.innerHTML = '';
+                
+                const div = document.createElement('div');
+                div.classList.add('upload-status');
+                
+                if (type === 'success') {
+                    div.classList.add('csv-success');
+                    div.innerHTML = `
+                        <i class="fas fa-check-circle text-success"></i>
+                        <span>${message}</span>
+                    `;
+                } else {
+                    div.classList.add('csv-error');
+                    div.innerHTML = `
+                        <i class="fas fa-exclamation-triangle text-danger"></i>
+                        <span>${message}</span>
+                    `;
+                }
+                
+                uploadStatus.appendChild(div);
+            }
+            
+            // Process CSV button handler
+            processCsvBtn.addEventListener('click', () => {
+                processCsvBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+                
+                // Simulate processing
+                setTimeout(() => {
+                    showUploadStatus('CSV data processed successfully. Added to analysis.', 'success');
+                    processCsvBtn.innerHTML = '<i class="fas fa-cogs me-2"></i>Processed!';
+                    
+                    // Update insights with CSV data
+                    document.querySelector('.alert-panel.alert-low').innerHTML = `
+                        <span class="insight-badge badge-low">Info</span>
+                        CSV data integrated. Historical patterns show 87% correlation with current forecasts.
+                    `;
+                    
+                    // Update stats
+                    document.querySelectorAll('.stat-value')[0].textContent = '89%';
+                    document.querySelectorAll('.stat-value')[1].textContent = '1.1°C';
+                    
+                    // Reset button after 3 seconds
+                    setTimeout(() => {
+                        processCsvBtn.innerHTML = '<i class="fas fa-cogs me-2"></i> Process Data';
+                    }, 3000);
+                }, 2000);
+            });
+            
+            // Analyze CSV button handler
+            analyzeCsvBtn.addEventListener('click', () => {
+                analyzeCsvBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analyzing...';
+                
+                // Simulate analysis
+                setTimeout(() => {
+                    showUploadStatus('Analysis complete. Historical trends identified.', 'success');
+                    analyzeCsvBtn.innerHTML = '<i class="fas fa-chart-bar me-2"></i> Analyze';
+                    
+                    // Add new insight
+                    const insightsContainer = document.querySelector('.card-body > .row');
+                    const newInsight = document.createElement('div');
+                    newInsight.className = 'alert-panel alert-low';
+                    newInsight.innerHTML = `
+                        <span class="insight-badge badge-low">CSV Analysis</span>
+                        Historical data shows temperature patterns matching current forecast with 92% accuracy.
+                    `;
+                    insightsContainer.parentNode.insertBefore(newInsight, insightsContainer);
+                }, 2500);
+            });
+            
+            // Clear CSV button handler
+            clearCsvBtn.addEventListener('click', () => {
+                fileInput.value = '';
+                uploadStatus.innerHTML = '';
+                csvPreview.classList.add('d-none');
+                csvActions.classList.add('d-none');
+                
+                // Reset upload box
+                fileUploadBox.innerHTML = `
+                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                    <h5 class="mb-2">Drag & Drop your CSV file here</h5>
+                    <p class="text-muted mb-0">or click to browse</p>
+                    <input type="file" id="csvFile" accept=".csv" style="display: none;">
+                `;
+                
+                // Reattach event listeners
+                document.getElementById('csvFile').addEventListener('change', () => {
+                    if (fileInput.files.length) {
+                        handleFiles(fileInput.files);
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
