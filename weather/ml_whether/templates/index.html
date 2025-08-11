@@ -846,16 +846,12 @@ function generateForecast() {
         })
         .then(data => {
             updateLastUpdated();
+document.getElementById('currentTemp').textContent = `${data.current.apiTemp ?? '-'}°C`;
+document.getElementById('currentCondition').textContent = data.current.condition ?? '-';
+document.getElementById('humidity').textContent = data.current.humidity != null ? `${data.current.humidity}%` : '-';
+document.getElementById('windSpeed').textContent = data.current.windSpeed != null ? `${data.current.windSpeed} km/h` : '-';
+document.getElementById('pressure').textContent = data.current.pressure != null ? `${data.current.pressure} hPa` : '-';
 
-            document.getElementById('cityName').textContent = data.location || location;
-            document.getElementById('currentTemp').textContent = `${data.api_temp ?? '-'}°C`;
-            document.getElementById('currentCondition').textContent = data.condition ?? '-';
-            document.getElementById('weatherIcon').innerHTML = `<i class="${getWeatherIcon(data.condition ?? '')}"></i>`;
-            document.getElementById('humidity').textContent = data.humidity != null ? `${data.humidity}%` : '-';
-            document.getElementById('windSpeed').textContent = data.wind_speed != null ? `${data.wind_speed} km/h` : '-';
-            document.getElementById('pressure').textContent = data.pressure != null ? `${data.pressure} hPa` : '-';
-            document.getElementById('highTemp').textContent = '-';
-            document.getElementById('lowTemp').textContent = '-';
 
             if (data.forecast && Array.isArray(data.forecast) && data.forecast.length > 0) {
                 const forecastDays = data.forecast.map(f => f.date);
